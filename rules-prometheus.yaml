@@ -1,0 +1,13 @@
+  rule-name:
+     groups:
+     - name: additional_rules
+       rules:
+        - alert: KubePodRestarting
+          annotations:
+            description: Pod {{ $labels.namespace }}/{{ $labels.pod }} ({{ $labels.container }}) is restarting {{ printf "%.2f" $value }} times / 3 minutes.
+            summary: Pod is restarting
+          expr: |
+            rate(kube_pod_container_status_restarts_total{job="kube-state-metrics"}[5m]) * 60 * 3 > 0
+          for: 3m
+          labels:
+            severity: warning

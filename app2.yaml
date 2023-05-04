@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: monitoring-deployment-test-hilman
+  namespace: app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: monitoring
+  template:
+    metadata:
+      labels:
+        app: monitoring
+    spec:
+      containers:
+        - name: monitoring-test-hilman
+          image: gcr.io/horizontal-veld-327901/tweet_app_hilmy@sha256:d5ca3644fe2770fda5cacd713547c2a6a8a9bb06b1c838f54401be13550238c7
+          resources:
+            requests:
+              cpu: "10m"
+              memory: "128Mi"
+            limits:
+              cpu: "20m"
+              memory: "256Mi"
+          ports:
+            - containerPort: 80

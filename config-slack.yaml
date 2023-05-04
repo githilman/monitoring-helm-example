@@ -1,0 +1,29 @@
+config:
+    global:
+      resolve_timeout: 5m
+    route:
+      group_wait: 20s
+      group_interval: 4m
+      repeat_interval: 5m
+      receiver: 'null'
+      routes:
+      - receiver: 'slack-k8s'
+        matchers:
+        - severity=~ "critical|warning"
+        continue: true
+    receivers:
+      - name: 'null'
+      - name: 'slack-k8s'
+        slack_configs:
+         - api_url: '' #askDevOps
+           channel: '#monitoring-dev'
+           title: '{{ if eq .Status "firing" }}:fire:{{ else }}:white_check_mark:{{ end }} [{{ .Status | toUpper }}] {{ .CommonAnnotations.title }} '
+           text: >-
+             {{ range .Alerts }}
+               *Alert:* {{ .Annotations.summary }} - `{{ .Labels.severity }}`
+               *Description:* {{ .Annotations.description }}
+               *Graph:* {{ if eq .Labels.category "logs" }}<{{ .Annotations.logurl }}|:chart_with_upwards_trend:>{{ else }}<{{ .GeneratorURL }}|:chart_with_upwards_trend:>{{ end }} *Dashboard:* <{{ .Annotations.dashboard }}|:bar_chart:> *Runbook:* <{{ .Annotations.runbook }}|:spiral_note_pad:>
+               *Details:*
+               {{ range .Labels.SortedPairs }} • *{{ .Name }}:* `{{ .Value }}`
+               {{ end }}
+             {{ end }}
